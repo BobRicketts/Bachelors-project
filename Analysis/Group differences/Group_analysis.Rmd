@@ -1,0 +1,74 @@
+---
+title: "Group_analysis"
+author: "Laurits & Anders"
+date: "12/5/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(brms)
+library(tidyverse)
+load('M2.rda')
+M2 <- fit_wiener
+rm(fit_wiener)
+```
+
+```{r Hypotheses}
+#Tests for longer nondecision time in SZ patients
+hypothesis(M2, "ndt_GroupSchizophrenia > ndt_GroupControl")
+
+#Tests for narrower boundaries in SZ patients
+hypothesis(M2, "bs_GroupControl > bs_GroupSchizophrenia")
+
+#Tests for lower drift rates in SZ patients, controlling for baseline
+hypothesis(M2, "CongruentCongruent:TaskImitation:GroupControl +
+                CongruentCongruent:TaskBaseline:GroupControl + 
+                CongruentIncongruent:TaskImitation:GroupControl +
+                CongruentIncongruent:TaskBaseline:GroupControl >
+                CongruentCongruent:TaskImitation:GroupSchizophrenia +
+                CongruentCongruent:TaskBaseline:GroupSchizophrenia + 
+                CongruentIncongruent:TaskImitation:GroupSchizophrenia +
+                CongruentIncongruent:TaskBaseline:GroupSchizophrenia")
+
+#Tests for higher drift rates in SZ patients, congruent trials (Automatic imitation)
+hypothesis(M2, "(CongruentCongruent:TaskImitation:GroupSchizophrenia -  CongruentCongruent:TaskBaseline:GroupSchizophrenia) > (CongruentCongruent:TaskImitation:GroupControl -  CongruentCongruent:TaskBaseline:GroupControl)") 
+
+#Tests for higher drift rates in SZ patients, incongruent trials (Imitation inhibition)
+hypothesis(M2, "(CongruentIncongruent:TaskImitation:GroupSchizophrenia -  CongruentIncongruent:TaskBaseline:GroupSchizophrenia) > (CongruentIncongruent:TaskImitation:GroupControl -  CongruentIncongruent:TaskBaseline:GroupControl)") 
+
+#Tests for higher drift rates in imitation task than control task, congruent trials, SZ patients only
+hypothesis(M2, "CongruentCongruent:TaskImitation:GroupSchizophrenia >  CongruentCongruent:TaskBaseline:GroupSchizophrenia") 
+
+#Tests for higher drift rates in imitation task than control task, incongruent trials, SZ patients only
+hypothesis(M2, "CongruentIncongruent:TaskImitation:GroupSchizophrenia >  CongruentIncongruent:TaskBaseline:GroupSchizophrenia") 
+
+#Tests for higher drift rates in imitation task than control task, congruent trials, controls only
+hypothesis(M2, "CongruentCongruent:TaskImitation:GroupControl > CongruentCongruent:TaskBaseline:GroupControl")
+
+#Tests for higher drift rates in imitation task than control task, incongruent trials, controls only
+hypothesis(M2, "(CongruentIncongruent:TaskImitation:GroupControl < CongruentIncongruent:TaskBaseline:GroupControl)") 
+```
+
+```{r Plots}
+#Run whole chunk to the automatic imitation and imitation inhibition effects for both SZ patients and controls
+fixef <- as.data.frame(summary(M2)[["fixed"]][1:8,1:4]) #drift rate
+fixef$Condition <- row.names(fixef)
+fixef$Congruent <- if_else(str_detect(fixef$Condition, "Incongruent"), "Incongruent", "Congruent")
+fixef$Task <- if_else(str_detect(fixef$Condition, "Imitation"), "Imitation", "Control")
+fixef$Task <- if_else(fixef$Task == "Imitation", fixef$Task <- "Imitation task", fixef$Task <- "Control task")
+fixef$Task <- factor(fixef$Task, levels = c("Imitation task", "Control task"))
+fixef$Group <- if_else(str_detect(fixef$Condition, "Schizophrenia"), "Schizophrenia", "Control")
+
+ggplot(fixef, aes(x = Task, y = Estimate, colour = Group)) + 
+  facet_wrap(~Congruent) +
+  geom_point(position = ) +
+  geom_line(aes(group = Group), linetype = "longdash") + 
+  geom_errorbar(aes(ymin = `l-95% CI`, ymax = `u-95% CI`), width = .15) +
+  ylab("Drift rate") + 
+  xlab("Congruency") +
+  theme_bw(base_size = 15)
+```
+
+
+
+

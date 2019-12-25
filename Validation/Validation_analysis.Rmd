@@ -1,0 +1,69 @@
+---
+title: "Validation_analysis"
+author: "Laurits & Anders"
+date: "12/5/2019"
+output: html_document
+---
+
+```{r setup, warning = FALSE}
+library(tidyverse)
+library(brms)
+
+#Warning! These models are too large for some computers to handle when calculating model weights. Use models in '/Small models' instead if this is a problem.
+load('M1_full.rda')
+M1_full<- fit_wiener
+load('M1_bs.rda')
+M1_bs <- fit_wiener
+load('M1_ndt.rda')
+M1_ndt <- fit_wiener
+load('M1_simple.rda')
+M1_simple <- fit_wiener
+remove(fit_wiener)
+```
+
+```{r Loo-comparison}
+#Estimates and assigns LOOCV-values to each of the four models
+M1_full <- add_criterion(M1_full, criterion = "loo")
+M1_bs <- add_criterion(M1_bs, criterion = "loo")
+M1_ndt <- add_criterion(M1_ndt, criterion = "loo")
+M1_simple <-  add_criterion(M1_simple, criterion = "loo")
+
+#Outputs the LOO-values separately for each of the four models
+print(M1_full$loo)
+print(M1_bs$loo)
+print(M1_ndt$loo)
+print(M1_simple$loo)
+
+#Compares models' loo scores
+loo_compare(M1_full, M1_bs, M1_ndt, M1_simple)
+
+#Calculates model weights 
+weighted <- loo_model_weights(M1_bs, M1_ndt, M1_simple)
+weighted
+```
+
+```{r Hypothesis}
+#Tests for congrueny effect across tasks in controls
+hypothesis(M1_simple, "(CongruentCongruent:TaskBaseline + CongruentCongruent:TaskImitation) > (CongruentIncongruent:TaskBaseline + CongruentIncongruent:TaskImitation)")
+```
+
+```{r Plot}
+#Run whole chunk to the effect of congruency in the imitation and control task
+fixef <- as.data.frame(summary(M1_simple)[["fixed"]][3:6,1:4])
+fixef$Condition <- row.names(fixef)
+fixef$Congruent <- if_else(str_detect(fixef$Condition, "Incongruent"), "Incongruent", "Congruent")
+fixef$Task <- if_else(str_detect(fixef$Condition, "Imitation"), "Imitation", "Baseline")
+fixef$Task <- if_else(fixef$Task == "Imitation", fixef$Task <- "Imitation task", fixef$Task <- "Control task")
+fixef$Task <- factor(fixef$Task, levels = c("Imitation task", "Control task"))
+
+ggplot(fixef, aes(x = Congruent, y = Estimate)) +
+  facet_wrap(~Task) +
+  geom_point() +
+  geom_line(aes(group = 1),  linetype = "longdash") + 
+  geom_errorbar(aes(ymin = `l-95% CI`, ymax = `u-95% CI`), width = .2) +
+  ylab("Drift rate") + 
+  xlab("Congruency") +
+  theme_bw(base_size = 15)
+```
+
+

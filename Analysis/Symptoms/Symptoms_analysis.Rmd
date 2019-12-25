@@ -1,0 +1,45 @@
+---
+title: "Symptoms_analysis"
+author: "Laurits & Anders"
+date: "12/5/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(stringi)
+library(brms)
+```
+
+```{r Hypotheses}
+file_names <- list.files(path = ".", pattern = "*.rda")
+
+#Warning! Loads in all models.
+for (file in file_names){ 
+  load(paste(file))
+  symptom <- substring(parnames(fit_wiener)[7], 39)
+  eval(call("<-", as.name(symptom), fit_wiener))
+  rm(fit_wiener)
+}
+
+model_names <- stri_sub(file_names, 4, -5)
+
+#Tests for increased congruency effect with increased severity of symptoms, using control task as control. (Paste loop in console for clarity)
+for  (model in model_names){ 
+  fit_wiener <- eval(parse(text = paste(model)))
+  symptom <- substring(parnames(fit_wiener)[7], 39)
+  print(symptom)
+  print(hypothesis(fit_wiener, paste("CongruentCongruent:TaskImitation:mo", symptom, " - ", "CongruentCongruent:TaskBaseline:mo", symptom, " > ", "CongruentIncongruent:TaskImitation:mo", symptom, " - ", "CongruentIncongruent:TaskBaseline:mo", symptom, sep = ""), class="bsp"))
+  cat("\n\n")
+}
+
+#Tests for narrower boundaries with increased severity of symptoms. (Paste loop in console for clarity)
+for  (model in model_names){ 
+  fit_wiener <- eval(parse(text = paste(model)))
+  symptom <- substring(parnames(fit_wiener)[7], 39)
+  print(symptom)
+  print(hypothesis(fit_wiener, paste("bs_mo", symptom, " < 0", sep = ""), class="bsp")) #Is BS under 0
+  cat("\n\n")
+}
+```

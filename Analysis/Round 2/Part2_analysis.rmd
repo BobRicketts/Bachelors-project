@@ -1,0 +1,86 @@
+---
+title: "Part2_analysis"
+author: "Laurits & Anders"
+date: "12/9/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(brms)
+library(tidyverse)
+```
+
+```{r}
+load("Part2_Explicit.rda")
+Explicit <- fit_wiener
+
+load("Part2_Implicit.rda")
+Implicit <- fit_wiener
+
+rm(fit_wiener)
+
+#Executive <- combined
+Executive <- read.csv("combined.csv", sep = ",")
+```
+
+```{r data}
+#PREPROCESSING! NEED NOT RUN THIS CHUNK IF ONLY INTERESTED IN MODEL. PRE-PROCESSED DATA WILL BE LOADED IN NEXT CHUNK.
+#Extract individual estimates
+Exp_data <- as.data.frame(coef(Explicit)[["Subject"]])
+Imp_data <- as.data.frame(coef(Implicit)[["Subject"]])
+Exp_data$Subject <- row.names(Exp_data)
+Imp_data$Subject <- row.names(Imp_data)
+
+#Average over spatial conditions
+Exp_data$Explicit <- (Exp_data$`Estimate.SpatialCompatible` + Exp_data$`Estimate.SpatialIncompatible`) /2
+
+#Calculate congruency effect in both spatially compatiable and incompatible trials 
+Imp_data$Imitation_comp <- Imp_data$`Estimate.CongruentCongruent:SpatialCompatible` - Imp_data$`Estimate.CongruentIncongruent:SpatialCompatible`
+Imp_data$Imitation_incomp <- Imp_data$`Estimate.CongruentCongruent:SpatialIncompatible` - Imp_data$`Estimate.CongruentIncongruent:SpatialIncompatible`
+colnames(Executive)[2] <- "Subject"
+
+#Average over spatial conditions
+Imp_data$Implicit <- (Imp_data$Imitation_comp + Imp_data$Imitation_incomp)/2
+
+Data <- cbind(Exp_data, Imp_data, Executive)
+
+d_test <- Data[,c("Subject", "Explicit","Implicit", "rt.ns")]
+
+d <- Data[,c("Subject", "Explicit","Implicit", "ssrt", "rt.ns")]
+
+colnames(d)[4] <- "SSRT"
+
+#z-scaling
+d$Explicit <- ( d$Explicit-mean(d$Explicit) ) / sd(d$Explicit)
+d$Implicit <- ( d$Implicit-mean(d$Implicit) ) / sd(d$Implicit)
+d$SSRT <- ( d$SSRT-mean(d$SSRT) ) / sd(d$SSRT)
+d_test$rt.ns <- ( d_test$rt.ns-mean(d_test$rt.ns) ) / sd(d_test$rt.ns)
+
+#save data 
+write.csv(d, "Spat_con_data.csv")
+```
+
+```{r full model}
+d <- read.csv("Spat_con_data.csv")
+
+prior <- c(
+  prior("normal(0,0.05)", class = "Intercept"),
+  prior("normal(0.5,0.5)", class = "b", coef = "Explicit"),
+  prior("normal(0.5,0.5)", class = "b", coef = "SSRT"),
+  prior("normal(0,0.1)", class = "sigma")
+)
+
+
+
+full_model <- brm(formula = Implicit ~ 1 + SSRT + Explicit, 
+    data = d, iter = 1000, warmup = 500, cores = 4,
+    prior = prior)
+
+
+hypothesis(full_model, "Explicit > 0")
+hypothesis(full_model, "SSRT > 0")
+```
+
+
+
