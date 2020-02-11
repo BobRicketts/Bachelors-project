@@ -18,7 +18,7 @@ repetitions_stop = 17
 
 # Run instructions?
 InstructionsParam = True
-exp1, exp2, exp3 = True,True,True
+exp1, exp2, exp3 = True,False,False
 
 ## Showing GUI to ask for ID and Age (helper file)
 ID, Age, dk = askForParticipantID()
@@ -30,12 +30,12 @@ date = now.strftime("%d-%m-%Y-%H-%M-%S")
 ## Setting up psychopy hardware (keyboard, monitor and window)
 MON_DISTANCE = 60
 MON_WIDTH = 50
-MON_SIZE = [2560, 1600]
+MON_SIZE = [1200, 900]
 
 kb = keyboard.Keyboard()
 
 my_monitor = monitors.Monitor('testMonitor', width=MON_WIDTH, distance=MON_DISTANCE)  # Create monitor object from the variables above.
-win = visual.Window(monitor=my_monitor, units='norm', fullscr=True, allowGUI=False, color='black',size = MON_SIZE)
+win = visual.Window(monitor=my_monitor, units='norm', fullscr=False, allowGUI=False, color='black',size = MON_SIZE)
 
 
 text1 = "Hvis denne tekst står i midten, tryk på 'z'." if dk else "If this text is in the middle, press 'z'"
@@ -255,9 +255,9 @@ if exp1:
 
     # Proceding to 2nd experiment
     if dk:
-        showMSG("Du er nu færdig med første del af eksperimentet.\n\nVi vil nu forklare anden del.\n\nKlik på mellemrumstasten for at gå videre.",win, xpos)
+        showMSG("Du er nu færdig med eksperimentet.\n\nKlik på mellemrumstasten for at afslutte.",win, xpos)
     else:
-        showMSG("You finished the first part of the experiment.\n\nWe now move on to the second part.\n\nPress the space by to proceed.",win, xpos)
+        showMSG("You finished the the experiment.\n\nPress the space by to exit.",win, xpos)
     event.waitKeys(keyList = 'space')
 
 #########################################################################################

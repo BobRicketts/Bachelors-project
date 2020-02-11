@@ -20,7 +20,7 @@ def makeStimList():
                 newDic = {
             		"finger"            : finger,
             		"number"            : number,
-            		"correct response"  : "x" if finger == "index" else "z",
+            		"correct response"  : "x" if number == 1 else "z",
             		"finger congruency" : congruency,
             		"spatial congruency": congruency if mirrored else not congruency,
                     "mirrored"          : mirrored,
@@ -96,14 +96,14 @@ def askForParticipantID():
     return ID, Age, dk
 
 
-msg1 ="""Velkommen til første del af dette eksperiment.\nVi starter med at gennemgå nogle instruktioner.\n
-Gå videre igennem instruktionerne med mellemrumstasten."""
+msg1 ="""Velkommen til dette eksperiment.\nVi starter med at gennemgå nogle instruktioner.\n
+Gå igennem instruktionerne med mellemrumstasten."""
 
 msg2 = """I denne del af eksperimentet skal du have fingrene på 'z' og 'x' tasterne med din venstre hånd.\n
 Når vi går i gang, skal du holde de to taster nede med din pegefinger og din langefinger.\n"""
 
-msg3 = """Du vil se en hånd på en blå baggrund. Mellem pegenfingeren og ringefingeren vil et tal dukke op.
-Samtidig vil enten håndens pegefinger eller ringefinger løfte sig. \n
+msg3 = """Du vil se en hånd på en blå baggrund. Mellem pegefingeren og langefingeren vil et tal dukke op.
+Samtidig vil enten håndens pegefinger eller langefinger løfte sig. \n
 Her er et eksempel."""
 
 msg4 = """Din opgave er at reagere på tallet og IKKE på fingeren.\n
@@ -111,23 +111,23 @@ Hvis du ser et 1-tal skal du løfte din pegefinger.\n
 Hvis du ser et 2-tal skal du løfte din langefinger.\n
 Løft den korrekte finger så hurtigt som muligt, uden at lave fejl."""
 
-msg5 = """Du vil blive vist en række af billeder. Når du holder begge taster nede, vil hånden dukke op.\n
-Efter et kort øjeblik vil du se tallet. Løft den korrekte finger, men hold den anden nede. \n
+msg5 = """Du vil blive vist en række billeder. Når du holder begge taster nede, vil hånden dukke op.\n
+Efter et kort øjeblik vil du se tallet. Løft den korrekte finger, men hold den anden nede.\n
 For at gøre klar til næste omgang, lad bare den finger, du løftede, trykke på tasten igen."""
 
-msg6 = """Vi starter med en prøverunde. \n
+msg6 = """Vi starter med en prøverunde.\n
 Her vises to billeder.\n
 Følg instruktionerne så godt som du kan. Hvis du skulle have misforstået noget, kan du prøve igen. \n
 Tryk på mellemrum for at starte."""
 
-msg1_en ="""Welcome to the first part of this experiment.\nWe will start by going over some instructions.\n
+msg1_en ="""Welcome to this experiment.\nWe will start by going over some instructions.\n
 Proceed through the instructions by pressing the space bar."""
 
 msg2_en = """In this part of the experiment you will have to press down your fingers on the 'z' and 'x' keys with your left hand.\n
 When we begin, you will have to hold down the two buttons with your index and middle fingers.\n"""
 
 msg3_en = """You will see a hand on a blue background. A number will appear between the index and middle fingers.
-Simultaniously, either the index finger or middle finger of the hand will move. \n
+Simultaniously, either the index finger or middle finger of the hand will move.\n
 Here is an example."""
 
 msg4_en = """Your task is to respond to the number and NOT the finger.\n
