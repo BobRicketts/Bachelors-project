@@ -13,7 +13,7 @@ library(brms)
 ```
 
 ```{r Hypotheses}
-file_names <- list.files(path = ".", pattern = "*.rda")
+file_names <- list.files(path = "Models", pattern = "*.rda", full.names=TRUE)
 
 #Warning! Loads in all models.
 for (file in file_names){ 
@@ -39,7 +39,7 @@ for  (model in model_names){
   fit_wiener <- eval(parse(text = paste(model)))
   symptom <- substring(parnames(fit_wiener)[7], 39)
   print(symptom)
-  print(hypothesis(fit_wiener, paste("bs_mo", symptom, " < 0", sep = ""), class="bsp")) #Is BS under 0
+  print(hypothesis(fit_wiener, paste("bs_mo", symptom, " < 0", sep = ""), class="bsp")) #Is BS under 0?
   cat("\n\n")
 }
 ```
